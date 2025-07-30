@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-build
     env:
-      MONGO_URI: 'github-actions-iti-2025.global.mongocluster.cosmos.azure.com'
+      MONGO_URI: 'mongodb+srv://ahmed:${{ secrets.MONGODB_PASS }}@github-actions-iti-2025.global.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000'
       MONGO_USERNAME: ${{ vars.MONGODB_USER_NAME }}
       MONGO_PASSWORD: ${{ secrets.MONGODB_PASS }}
     steps:
