@@ -1,4 +1,4 @@
-name: Solar System Workflow Ku
+name: Bashar Solar System Workflow Ku
 
 
 on:
@@ -26,23 +26,23 @@ jobs:
     - name: Docker Hub Login
       uses: docker/login-action@v2.2.0
       with:
-       username: ${{ vars.DOCKERHUB_USERNAME }}
-       password: ${{ secrets.DOCKERHUB_PASSWORD }}
+       username: ${{ vars.USER_NAME }}
+       password: ${{ secrets.USER_PASS }}
     - name: Build Docker Image for Testing
       uses: docker/build-push-action@v4
       with:
        context: .
        file: ./Dockerfile
        push: true
-       tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+       tags: ${{ vars.USER_NAME }}/solar-system:${{ github.sha }}
   dev-deploy:
     name: Deploy to Dev Env
     runs-on: ubuntu-latest
     needs: docker-build
     env:
       MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
-      MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      MONGO_USERNAME: ${{ vars.MONGODB_USER_NAME }}
+      MONGO_PASSWORD: ${{ secrets.MONGODB_PASS }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
       uses: azure/k8s-set-context@v3
       with:
        method: kubeconfig
-       kubeconfig: ${{ secrets.KUBECONFIG }}
+       kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
     - name: Fetch Kubernetes Cluster Details
       run: |
@@ -74,7 +74,7 @@ jobs:
       env:
         NAMESPACE: ${{ vars.NAMESPACE }}
         REPLICAS: ${{ vars.REPLICAS }}
-        IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+        IMAGE: ${{ vars.USER_NAME }}/solar-system:${{ github.sha }}
            
        
 
@@ -92,8 +92,8 @@ jobs:
       run: |
             kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds \
             --from-literal=MONGO_URI=${{ env.MONGO_URI }} \
-            --from-literal=MONGO_USERNAME=${{ env.MONGO_USERNAME }} \
-            --from-literal=MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
+            --from-literal=MONGO_USERNAME=${{ env.MONGODB_USER_NAME }} \
+            --from-literal=MONGO_PASSWORD=${{ secrets.MONGODB_PASS }} \
             --save-config \
             --dry-run=client \
             -o yaml | kubectl apply -f -

@@ -1,4 +1,4 @@
-name: Solar System Workflow
+name: Bashar Solar System Workflow
 
 on: 
   workflow_dispatch:

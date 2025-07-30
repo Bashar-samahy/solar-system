@@ -1,4 +1,4 @@
-name: Solar System Workflow beginner
+name: Bashar Solar System Workflow beginner
 
 
 on:
@@ -17,9 +17,9 @@ jobs:
       mongodb-service:
         image: mongo:latest
     env:
-      MONGO_URI: "mongodb+srv://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@github-actions-iti-2025.global.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
-      MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
-      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+      MONGO_URI: "mongodb+srv://${{ secrets.MONGODB_USER_NAME }}:${{ secrets.MONGODB_PASS }}@github-actions-iti-2025.global.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
+      MONGO_USERNAME: ${{ vars.MONGODB_USER_NAME }}
+      MONGO_PASSWORD: ${{ secrets.MONGODB_PASS }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -64,15 +64,15 @@ jobs:
       - name: Docker Hub Login
         uses: docker/login-action@v2.2.0
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ vars.USER_NAME }}
+          password: ${{ secrets.USER_PASS }}
 
       - name: Build Docker Image for Testing
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+          tags: ${{ vars.USER_NAME }}/solar-system:${{ github.sha }}
 
 
       # - name: Docker Image Testing
@@ -87,7 +87,7 @@ jobs:
       #        -e MONGO_URI=$MONGO_URI \
       #        -e MONGO_USERNAME=$MONGO_USERNAME \
       #        -e MONGO_PASSWORD=$MONGO_PASSWORD \
-      #         ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+      #         ${{ vars.USER_NAME }}/solar-system:${{ github.sha }}
 
 
       #   # Display container IP address
