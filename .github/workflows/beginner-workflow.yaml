@@ -1,0 +1,99 @@
+name: Solar System Workflow beginner
+
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'feature/*'
+
+
+jobs:
+  unit-testing:
+    name: Unit Testing
+    runs-on: ubuntu-latest
+    services:
+      mongodb-service:
+        image: mongo:latest
+    env:
+      MONGO_URI: "mongodb+srv://${{ secrets.MONGO_USERNAME }}:${{ secrets.MONGO_PASSWORD }}@github-actions-iti-2025.global.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
+      MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
+      MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+      - name: Install Dependencies
+        run: npm install
+
+
+      - name: Run Unit Tests
+        env:
+          MONGODB_HOST: mongodb-service
+          MONGODB_PORT: 27017
+        continue-on-error: true
+        run: npm test
+    
+      - name: Archive Test Result
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mocha-Test-Result
+          path: test-results.xml
+
+  docker-build:
+    name: Docker Build and Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Docker Hub Login
+        uses: docker/login-action@v2.2.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build Docker Image for Testing
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+
+
+      # - name: Docker Image Testing
+      #   run: |
+      #   #List built images
+      #     docker images
+
+ 
+      #   # Run the container in detached mode
+      #     docker run --name solar-system-app -d \
+      #        -p 3000:3000 \
+      #        -e MONGO_URI=$MONGO_URI \
+      #        -e MONGO_USERNAME=$MONGO_USERNAME \
+      #        -e MONGO_PASSWORD=$MONGO_PASSWORD \
+      #         ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+
+
+      #   # Display container IP address
+      #     echo "Container IP:" $(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' solar-system-app)
+
+
+      #   # Test the /live endpoint
+      #     echo "Testing /live endpoint"
+      #     wget -q -O - http://127.0.0.1:3000/live | grep live
