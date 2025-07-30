@@ -74,7 +74,7 @@ jobs:
       env:
         NAMESPACE: ${{ vars.NAMESPACE }}
         REPLICAS: ${{ vars.REPLICAS }}
-        IMAGE: ${{ vars.USER_NAME }}/solar-system:${{ github.sha }}
+        IMAGE: ${{ vars.USER_NAME }}/bashar:${{ github.sha }}
            
        
 
