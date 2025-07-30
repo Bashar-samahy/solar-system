@@ -34,13 +34,13 @@ jobs:
        context: .
        file: ./Dockerfile
        push: true
-       tags: ${{ vars.USER_NAME }}/solar-system:${{ github.sha }}
+       tags: ${{ vars.USER_NAME }}/bashar:${{ github.sha }}
   dev-deploy:
     name: Deploy to Dev Env
     runs-on: ubuntu-latest
     needs: docker-build
     env:
-      MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
+      MONGO_URI: 'github-actions-iti-2025.global.mongocluster.cosmos.azure.com'
       MONGO_USERNAME: ${{ vars.MONGODB_USER_NAME }}
       MONGO_PASSWORD: ${{ secrets.MONGODB_PASS }}
     steps:
